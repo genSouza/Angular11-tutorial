@@ -2,39 +2,53 @@ import { HttpService } from './../../http.service';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Game } from './../../models';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ignoreElements } from 'rxjs/operators';
 
 @Component({
   selector: 'app-details',
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
 })
-export class DetailsComponent implements OnInit {
+export class DetailsComponent implements OnInit, OnDestroy {
   gameRating = 0;
   gameId: string = '';
   game!: Game;
   routeSub!: Subscription;
   gameSub!: Subscription;
 
-  constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService) {
-
-  }
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private httpService: HttpService
+  ) {}
 
   ngOnInit(): void {
-    this.routeSub = this.activatedRoute.params.subscribe((params: Params)=>{
+    this.routeSub = this.activatedRoute.params.subscribe((params: Params) => {
       this.gameId = params['id'];
       this.getGameDetails(this.gameId);
     });
   }
 
+  ngOnDestroy(): void {
+    if (this.gameSub) {
+      this.gameSub.unsubscribe();
+    }
+
+    if (this.routeSub) {
+      this.routeSub.unsubscribe();
+    }
+  }
+
   getGameDetails(id: string): void {
-    this.gameSub = this.httpService.getGameDetails(id).subscribe((gameResp: Game)=> {
-      this.game = gameResp;
-      console.log(this.game);
-      setTimeout(() => {
+    this.gameSub = this.httpService
+      .getGameDetails(id)
+      .subscribe((gameResp: Game) => {
+        this.game = gameResp;
+        console.log(this.game);
+        setTimeout(() => {
           this.gameRating = Number(this.game.metacritic);
-      }, 1000);
-    })
+        }, 1000);
+      });
   }
 
   getColor(value: number): string {
