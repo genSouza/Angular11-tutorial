@@ -13,14 +13,16 @@ import { ignoreElements } from 'rxjs/operators';
 export class DetailsComponent implements OnInit, OnDestroy {
   gameRating = 0;
   gameId: string = '';
-  game!: Game;
+  game: Game = {} as Game;
   routeSub!: Subscription;
   gameSub!: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private httpService: HttpService
-  ) {}
+  ) {
+
+  }
 
   ngOnInit(): void {
     this.routeSub = this.activatedRoute.params.subscribe((params: Params) => {
